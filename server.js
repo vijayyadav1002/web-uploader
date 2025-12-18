@@ -24,24 +24,9 @@ const storage = multer.diskStorage({
   }
 });
 
-// File filter to accept only zip files
-const fileFilter = (req, file, cb) => {
-  const allowedMimes = ['application/zip', 'application/x-zip-compressed'];
-  const allowedExts = ['.zip'];
-  
-  const ext = path.extname(file.originalname).toLowerCase();
-  
-  if (allowedMimes.includes(file.mimetype) && allowedExts.includes(ext)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only .zip files are allowed!'), false);
-  }
-};
-
 // Configure multer with 200MB limit
 const upload = multer({
   storage: storage,
-  fileFilter: fileFilter,
   limits: {
     fileSize: 200 * 1024 * 1024 // 200MB in bytes
   }
@@ -53,7 +38,7 @@ app.get('/', (req, res) => {
     <!DOCTYPE html>
     <html>
     <head>
-      <title>Zip File Upload</title>
+      <title>File Upload</title>
       <style>
         body {
           font-family: Arial, sans-serif;
@@ -157,15 +142,15 @@ app.get('/', (req, res) => {
       </style>
     </head>
     <body>
-      <h1>Upload Zip File</h1>
+      <h1>Upload File</h1>
       
       <div class="drop-zone" id="dropZone">
-        <div class="drop-zone-icon">📦</div>
-        <div class="drop-zone-text">Drag & Drop your .zip file here</div>
+        <div class="drop-zone-icon">📁</div>
+        <div class="drop-zone-text">Drag & Drop your file here</div>
         <div class="drop-zone-hint">or click to browse (Max 200MB)</div>
       </div>
       
-      <input type="file" id="fileInput" accept=".zip">
+      <input type="file" id="fileInput">
       
       <div class="file-info" id="fileInfo">
         <strong>Selected file:</strong> <span id="fileName"></span><br>
@@ -225,12 +210,6 @@ app.get('/', (req, res) => {
           
           if (!file) return;
 
-          // Validate file type
-          if (!file.name.toLowerCase().endsWith('.zip')) {
-            showMessage('error', 'Please select a .zip file');
-            return;
-          }
-
           // Validate file size (200MB)
           if (file.size > 200 * 1024 * 1024) {
             showMessage('error', 'File size exceeds 200MB limit');
@@ -250,7 +229,7 @@ app.get('/', (req, res) => {
           if (!selectedFile) return;
 
           const formData = new FormData();
-          formData.append('zipfile', selectedFile);
+          formData.append('file', selectedFile);
 
           messageDiv.innerHTML = '';
           progressBar.style.display = 'block';
@@ -317,7 +296,7 @@ app.get('/', (req, res) => {
 });
 
 // Upload endpoint
-app.post('/upload', upload.single('zipfile'), (req, res) => {
+app.post('/upload', upload.single('file'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
