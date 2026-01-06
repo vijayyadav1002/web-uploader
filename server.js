@@ -24,11 +24,11 @@ const storage = multer.diskStorage({
   }
 });
 
-// Configure multer with 200MB limit
+// Configure multer with 5GB limit
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 200 * 1024 * 1024 // 200MB in bytes
+    fileSize: 5000 * 1024 * 1024 // 5GB in bytes
   }
 });
 
@@ -147,7 +147,7 @@ app.get('/', (req, res) => {
       <div class="drop-zone" id="dropZone">
         <div class="drop-zone-icon">📁</div>
         <div class="drop-zone-text">Drag & Drop your file here</div>
-        <div class="drop-zone-hint">or click to browse (Max 200MB)</div>
+        <div class="drop-zone-hint">or click to browse (Max 5GB)</div>
       </div>
       
       <input type="file" id="fileInput">
@@ -210,9 +210,9 @@ app.get('/', (req, res) => {
           
           if (!file) return;
 
-          // Validate file size (200MB)
-          if (file.size > 200 * 1024 * 1024) {
-            showMessage('error', 'File size exceeds 200MB limit');
+          // Validate file size (5GB limit)
+          if (file.size > 5000 * 1024 * 1024) {
+            showMessage('error', 'File size exceeds 5GB limit');
             return;
           }
 
@@ -318,7 +318,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     if (err.code === 'LIMIT_FILE_SIZE') {
-      return res.status(400).json({ error: 'File size exceeds 200MB limit' });
+      return res.status(400).json({ error: 'File size exceeds 5GB limit' });
     }
     return res.status(400).json({ error: err.message });
   }
